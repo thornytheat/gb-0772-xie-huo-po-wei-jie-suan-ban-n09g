@@ -13,7 +13,7 @@
 | M4 首免与升级价计算 | 选择一次停靠查看跨日收费分段 | `GET /api/cases/dirty/pricing` | `app/billing/rates.py` | `tests/test_pricing.py` |
 | M5 应实收和泊位对账 | 查看逐单差价、游离回执与泊位容量 | `GET /api/cases/dirty/settlement` | `app/billing/settle.py` `app/billing/payments.py` | `tests/test_settlement.py` |
 | M6 批次留档复跑 | 原子落档、查历史及重放 | `POST /api/dockets` | `app/archive/docket.py` `app/archive/rerun.py` | `tests/test_docket.py` |
-| M7 理赔证据签发 | 签发并核验脱敏证据、摘要与勾稽 | `GET /api/export/{key}` | `app/archive/appeal.py` `app/archive/canonical.py` | `tests/test_appeal.py` |
+| M7 理赔证据签发 | 签发并核验脱敏证据、摘要与勾稽，按车裁剪本车证据 | `GET /api/export/{key}` `GET /api/export/{key}/vehicle/{vehicle}` `GET /api/claims/{key}` | `app/archive/appeal.py` `app/archive/canonical.py` | `tests/test_appeal.py` |
 
 ## 陷阱登记
 
@@ -34,6 +34,8 @@
 - 脏样检测源 27 = 格式可读 25 + 重复表头 1 + 列数隔离 1。可读 25 再扣车牌 1、范围与重复编号等 4，采信 20。
 - 应管 240 = 空闲 133 + 争议 7 + 首免 10 + 基础价 68 + 升级价 22。实收 2310 分 − 应收 2240 分 = 逐单差价 70 分，游离回执 140 分另列。
 - 归档键以规则版本和输入全摘要生成，留档提交为单事务。重复提交取原运行快照，原件变动产生不同记录。
+- 本车证据由整批留档裁剪：只用该车辆代号的停靠、核价、对账行，附带留档证据摘要与整批根摘要作为对账锚点。裁剪是纯函数，重复签发逐字节相同，不写库、不新增留档，也不改动已签的整批证据。
+- 同一泊位两车重叠时，本车只看到自己的停靠与回执；争议分钟逐分钟列明，并为每个分钟给出重叠方摘录（泊位、区间、分钟数、同车标记、整条记录摘要）。他车停靠不外发，摘要可与对方证书或整批证据对照。
 
 ## 已知边界
 

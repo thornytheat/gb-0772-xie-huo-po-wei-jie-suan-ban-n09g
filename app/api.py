@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Request
 from fastapi.responses import JSONResponse
 
-from app.archive.appeal import issue
+from app.archive.appeal import claims, issue, issue_vehicle
 from app.archive.rerun import run
 from app.clearing import Clearing,STAGES
 from app.problems import DocketError
@@ -35,7 +35,20 @@ def read(request:Request,key:str):
     return request.app.state.docket.require(key)
 
 
+@api.get('/claims/{key}')
+def claim_list(request:Request,key:str):
+    record=request.app.state.docket.require(key)
+    return {'key':key,'claims':claims(record)}
+
+
 @api.get('/export/{key}')
 def export(request:Request,key:str):
     item=issue(request.app.state.docket.require(key))
     return JSONResponse(item,headers={'Content-Disposition':f'attachment; filename="appeal-{key}.json"'})
+
+
+@api.get('/export/{key}/vehicle/{vehicle}')
+def export_vehicle(request:Request,key:str,vehicle:str):
+    item=issue_vehicle(request.app.state.docket.require(key),vehicle)
+    return JSONResponse(item,headers={
+        'Content-Disposition':f'attachment; filename="appeal-{key}-{item["appeal"]}.json"'})

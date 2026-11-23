@@ -23,9 +23,9 @@ python -m pytest -q
 1. 首页选择「跨夜争议样例」。两个泊位合计应管 240 分钟，133 空闲、7 争议、10 首免、68 基础价及 22 升级价。
 2. 「占用区间重建」查去重的 17 分钟；「首免与升级价」选择 11/30 23:40 的 B-01，时间轨显示首免一次、午夜切日、升级档和 5 分钟同泊争议。
 3. 「逐单与泊位对账」查看应收 ¥22.40、关联实收 ¥23.10、净差 ¥0.70，以及单列的游离回执 ¥1.40。
-4. 点击「运行清算」生成留档，重复运行复用同一编号。进入「理赔证据签发」下载去车牌化的逐单证据。
+4. 点击「运行清算」生成留档，重复运行复用同一编号。进入「理赔证据签发」核对每辆车的本车结论，按车下载去车牌化的逐单证据，整批附件仍可核验。
 
-独立预览为 `GET /api/cases/{dirty|clean}/{stage}`，阶段名见深度登记。自有样例可以 `POST /api/dockets`，`bundle` 对象需包含 `survey`、`sensors`、`bookings`、`payments` 四份 UTF-8 字符串，内置数据可用 `{"sample":"dirty"}`。历史 `GET /api/dockets`，归档 `GET /api/dockets/{key}`，理赔附件 `GET /api/export/{key}`。
+独立预览为 `GET /api/cases/{dirty|clean}/{stage}`，阶段名见深度登记。自有样例可以 `POST /api/dockets`，`bundle` 对象需包含 `survey`、`sensors`、`bookings`、`payments` 四份 UTF-8 字符串，内置数据可用 `{"sample":"dirty"}`。历史 `GET /api/dockets`，归档 `GET /api/dockets/{key}`，本车可签发清单 `GET /api/claims/{key}`，整批附件 `GET /api/export/{key}`，本车附件 `GET /api/export/{key}/vehicle/{vehicle}`（也接受该车任一停靠编号）。
 
 - [字段、计费与边界](docs/DATA-DICTIONARY.md)
 - [模块和陷阱](docs/DEPTH.md)

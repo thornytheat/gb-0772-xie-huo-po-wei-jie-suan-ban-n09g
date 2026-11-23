@@ -5,7 +5,7 @@ from fastapi.encoders import jsonable_encoder
 from fastapi.responses import HTMLResponse
 from jinja2 import Environment,FileSystemLoader,select_autoescape
 
-from app.archive.appeal import issue
+from app.archive.appeal import claims, issue, issue_vehicle
 from app.clearing import Clearing
 from app.curb.timeaxis import local
 from app.problems import DocketError,LABEL
@@ -27,18 +27,25 @@ def yuan(cents):
 
 @workbench.get('/',response_class=HTMLResponse)
 @workbench.get('/clearing/{screen}',response_class=HTMLResponse)
-def screen(request:Request,screen:str='overview',sample:str='dirty',key:str|None=None):
+def screen(request:Request,screen:str='overview',sample:str='dirty',key:str|None=None,vehicle:str|None=None):
     if screen!='overview' and screen not in STEPS:
         raise DocketError('STAGE_BAD','没有这项清算工序',404)
     docket=request.app.state.docket
-    signed=None
+    batch,signed=None,None
+    claim_rows,failure=[],None
     if key:
         record=docket.require(key)
         report,meta=record['evidence'],record['manifest']
         if meta['source'] in {'clean','dirty'}:
             sample=meta['source']
         if screen=='appeal':
-            signed=issue(record)
+            batch=issue(record)
+            claim_rows=claims(record)
+            if vehicle:
+                try:
+                    signed=issue_vehicle(record,vehicle)
+                except DocketError as error:
+                    failure={'code':error.code,'message':str(error)}
     else:
         clearing=Clearing(bundle(sample),docket.secret)
         report=jsonable_encoder(clearing.report())
@@ -49,4 +56,5 @@ def screen(request:Request,screen:str='overview',sample:str='dirty',key:str|None
     path=lambda page: str(request.url_for('screen',screen=page).include_query_params(sample=sample,**({'key':key} if key else {})))
     return views.get_template('desk.html').render(screen=screen,steps=STEPS,index=index,next_step=stages[index+1] if index<6 else None,
         previous=stages[index-1] if index>0 else None,path=path,key=key,sample=sample,report=report,meta=meta,
-        history=history,signed=signed,label=LABEL,local=local,yuan=yuan)
+        history=history,signed=signed,batch=batch,claims=claim_rows,failure=failure,vehicle=vehicle,
+        label=LABEL,local=local,yuan=yuan)

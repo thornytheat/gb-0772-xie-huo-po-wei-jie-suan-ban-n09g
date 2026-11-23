@@ -13,4 +13,7 @@ LABEL = {
     'BOOKED':'预约已关联','WALK_IN':'无生效预约','GAP':'实收差价','MATCH':'实收一致',
     'NO_PAYMENT':'无实收回执','ORPHAN':'游离实收','ATTACH_CONFLICT':'预约版本冲突',
     'AMOUNT':'金额无效','UNKNOWN_SENSOR':'杆侧来源缺失','NONE':'无占位',
+    'DOCKET_BAD':'清算留档结构损坏','VEHICLE_BAD':'未指定本车','VEHICLE_MISSING':'留档没有本车停靠',
+    'STAY_UNBALANCED':'停靠分段勾稽未平','DISPUTE_UNBALANCED':'争议分钟勾稽未平',
+    'EVIDENCE_MISMATCH':'证据交叉核对不符',
 }
